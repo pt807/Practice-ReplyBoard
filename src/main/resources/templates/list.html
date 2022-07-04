@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>List</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+</head>
+<body>
+<header th:insert="/header.html"></header>
+<div class="container">
+  <table class="table">
+    <thead class="thead-light">
+    <tr class="text-center">
+      <th scope="col">#</th>
+      <th scope="col">제목</th>
+      <th scope="col">작성자</th>
+      <th scope="col">작성일</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="text-center" th:each="post : ${postList}">
+      <th scope="row">
+        <span th:text="${post.id}"></span>
+      </th>
+      <td>
+        <a th:href="@{'/view/' + ${post.id}}">
+          <span th:text="${post.title}"></span>
+        </a>
+      </td>
+      <td>
+        <span th:text="${post.writer}"></span>
+      </td>
+      <td>
+        <span th:text="${#temporals.format(post.createdDate, 'yyyy-MM-dd HH:mm')}"></span>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <form class="search" method="get" th:action="@{/}">
+    <div class="container">
+      <div class="row justify-content-md-center">
+        <div class="col-md-auto">
+          <select class="form-select" name="searchField" th:value="${param.searchField}">
+            <option value="title" th:selected="${searchField == 'title' ? true : false}">제목검색</option>
+            <option value="title2" th:selected="${searchField == 'title2' ? true : false}">제목+내용</option>
+
+          </select>
+        </div>
+        <div class="col col-lg-3">
+          <input type="text" class="form-control" id="searchText" name="searchText" th:value="${param.searchText}">
+        </div>
+        <div class="col-md-auto">
+          <button class="btn btn-dark" type="submit" id="button-addon2">검색</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div class="row">
+    <div class="col-auto mr-auto"></div>
+    <div class="col-auto">
+      <a class="btn btn-primary" th:href="@{/post}" role="button">글쓰기</a>
+    </div>
+  </div>
+
+  <ul class="pagination justify-content-center">
+    <li class="page-item"><a class="page-link" th:if="${nowPage > 1}" th:href="@{/(page=0, searchField=${param.searchField}, searchText=${param.searchText})}">&laquo;</a></li>
+    <li class="page-item"><a class="page-link" th:if="${nowPage > 1}" th:href="@{/(page=${nowPage} -2, searchField=${param.searchField}, searchText=${param.searchText})}">&lsaquo;</a></li>
+
+    <th:block th:if="${totalPage <= 10}" th:each ="i : ${#numbers.sequence(1, totalPage)}">
+      <li class="page-item"><a class="page-link" th:if="${i != nowPage}" th:href="@{/(page = ${i - 1}, searchField=${param.searchField}, searchText=${param.searchText})}" th:text="${i}"></a></li>
+      <li class="page-item" aria-current="page"><a class="page-link text-white" style="background-color: #212529;" th:if="${i == nowPage}" th:text="${i}"></a></li>
+    </th:block>
+
+    <th:block th:if="${totalPage > 10}">
+
+      <th:block th:if="${nowPage <= 6}" th:each ="i : ${#numbers.sequence(startPage, 10)}">
+        <li class="page-item"><a class="page-link" th:if="${i != nowPage}" th:href="@{/(page = ${i - 1}, searchField=${param.searchField}, searchText=${param.searchText})}" th:text="${i}"></a></li>
+        <li class="page-item" aria-current="page"><a class="page-link text-white" style="background-color: #212529;" th:if="${i == nowPage}" th:text="${i}"></a></li>
+      </th:block>
+
+      <th:block th:if="${nowPage > 6}" th:each="page : ${#numbers.sequence(startPage, endPage)}">
+        <li class="page-item"><a class="page-link" th:if="${page != nowPage}" th:href="@{/(page = ${page - 1}, searchField=${param.searchField}, searchText=${param.searchText})}" th:text="${page}"></a></li>
+        <li class="page-item" aria-current="page"><a class="page-link text-white" style="background-color: #212529;" th:if="${page == nowPage}"  th:text="${page}"></a></li>
+      </th:block>
+
+    </th:block>
+
+    <li class="page-item"><a class="page-link" th:if="${nowPage < totalPage}" th:href="@{/(page=${nowPage}, searchField=${param.searchField}, searchText=${param.searchText})}">&rsaquo;</a></li>
+    <li class="page-item"><a class="page-link" th:if="${nowPage < totalPage}" th:href="@{/(page=${totalPage - 1}, searchField=${param.searchField}, searchText=${param.searchText})}">&raquo;</a></li>
+  </ul>
+</div>
+</body>
+</html>
